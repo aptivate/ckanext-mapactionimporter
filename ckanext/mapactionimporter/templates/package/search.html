@@ -3,8 +3,20 @@
 {% block page_primary_action %}
   {% if h.check_access('package_create') %}
     <div class="page_primary_action">
-      {% link_for _('Add Dataset'), controller='package', action='new', class_='btn btn-primary', icon='plus-sign-alt' %}
+      {% if h.check_access('package_create') %}
+        {% snippet "mapactionschemas/snippets/add_package_typed.html" %}
+      {% endif %}
       {% snippet 'mapactionimporter/snippets/import_button.html' %}
     </div>
   {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    {% resource 'mapactionschemas/add_package_typed.js' %}
+{% endblock scripts %}
+
+{% block styles %}
+    {{ super() }}
+    {% resource 'mapactionschemas/add_package_typed.css' %}
 {% endblock %}

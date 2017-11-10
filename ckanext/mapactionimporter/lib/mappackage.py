@@ -69,7 +69,7 @@ def join_lines(text):
     return ' '.join(text.splitlines())
 
 
-def to_dataset(map_package):
+def extract_zip(map_package):
     # Extract the map package
     tempdir = tempfile.mkdtemp('-mapactionzip')
 
@@ -102,10 +102,14 @@ def to_dataset(map_package):
         raise MapPackageException(_("Error parsing XML: '{0}'".format(
             e.msg.args[0])))
 
+    return (et, file_paths)
+
+
+def to_dataset(context, map_package):
+    et, file_paths = extract_zip(map_package)
     dataset_dict = populate_dataset_dict_from_xml(et)
     # Not currently in the metadata
     dataset_dict['license_id'] = 'notspecified'
-
     dataset_info = {
         'status': get_mandatory_text_node(et, 'status'),
         'dataset_dict': dataset_dict,
@@ -133,16 +137,11 @@ def populate_dataset_dict_from_xml(et):
         raise MapPackageException(_("Version number '{version_number}' must be an integer".format(
             version_number=version_text)))
 
-    # If set, set the dataset type to the the MapAction productType
-    # This will select the schema applied to the dataset
-    if product_type is not None:
-        dataset_dict['type'] = product_type
-
     dataset_dict['name'] = slugify('%s %s v%s' % (operation_id,
                                                   map_number,
                                                   version_number))
-
     dataset_dict['version'] = version_number
+    dataset_dict['type'] = product_type
 
     for theme in et.findall('.//mapdata//theme'):
         if theme.text in PRODUCT_THEMES:
@@ -156,8 +155,8 @@ def populate_dataset_dict_from_xml(et):
     dataset_dict['notes'] = join_lines(summary)
 
     dataset_dict['extras'] = [
-        {'key': k, 'value': v} for (k, v) in
-        map_metadata_to_ckan_extras(et).items()
+        {'key': k, 'value': v} for (k, v)
+        in map_metadata_to_ckan_extras(et).items()
     ]
 
     return dataset_dict

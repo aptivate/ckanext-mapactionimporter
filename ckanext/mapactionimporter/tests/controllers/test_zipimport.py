@@ -40,13 +40,13 @@ class TestDataPackageController(FunctionalTestBaseClass):
         params = {
             'owner_org': organization['id'],
         }
-        upload_files = [('upload', get_test_zip().name)]
+        upload_files = [('upload', get_test_schema_zip().name)]
         response = self.get_import_zip_response(env, params, upload_files)
 
         # Should redirect to dataset's page
         assert_equal(response.status_int, 302)
 
-        slug = '189-ma001-v1'
+        slug = '189-ma099-v1'
         assert_regexp_matches(
             response.headers['Location'],
             '/dataset/edit/%s' % slug)

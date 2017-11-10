@@ -1,3 +1,7 @@
+import mock
+from defusedxml.ElementTree import parse
+import xml.etree.ElementTree as ET
+
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins.toolkit as toolkit
@@ -14,6 +18,8 @@ from ckanext.mapactionimporter.tests.helpers import (
     get_not_zip,
     get_special_characters_zip,
     get_test_zip,
+    get_test_schema_zip,
+    get_test_xml,
     get_update_zip,
     get_zip_empty_metadata,
     get_zip_no_metadata,
@@ -436,6 +442,32 @@ class TestCreateDatasetForNoEvent(TestCreateDatasetFromZip):
             'Upload':
             "Event with operationID '00189' does not exist",
         })
+
+class TestCreateWithPackageTypeSchema(TestDatasetForEvent):
+
+    def setup(self):
+        super(TestCreateWithPackageTypeSchema, self).setup()
+        # import sys; self.et.write(sys.stdout)
+        self.et = parse(get_test_xml())
+        self.mapdata = self.et.find('mapdata')
+
+    def append_mapdata(self, tag, text):
+        new_el = ET.Element(tag)
+        new_el.text = text
+        self.mapdata.append(new_el)
+
+    @mock.patch(
+        'ckanext.mapactionimporter.lib.mappackage.extract_zip',
+    )
+    def test_created_with_package_type(self, mocked):
+        self.append_mapdata('productType', 'test_schema')
+        self.append_mapdata('required_field', 'something')
+        mocked.return_value = (self.et, [])
+
+        dataset = helpers.call_action(
+            'create_dataset_from_mapaction_zip',
+            upload=_UploadFile(get_test_schema_zip()))
+        assert_equal(dataset['type'], 'test_schema')
 
 
 class _UploadFile(object):

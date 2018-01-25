@@ -3,7 +3,6 @@ import ckan.tests.helpers as helpers
 import ckan.plugins.toolkit as toolkit
 from ckanext.mapactionimporter.tests.helpers import (
     FunctionalTestBaseClass,
-    get_test_zip,
     get_test_schema_zip,
     assert_equal,
     assert_true,
@@ -58,7 +57,6 @@ class TestDataPackageController(FunctionalTestBaseClass):
         assert_equal(dataset['product_themes'], ["Orientation and Reference"])
         assert_equal(dataset['private'], True)
 
-
     def test_import_with_schema(self):
         """ Test import with a MapAction export product-type field
             validated against the schema defined by CKAN package_type
@@ -83,7 +81,6 @@ class TestDataPackageController(FunctionalTestBaseClass):
                      'Central African Republic: Example Map- Reference (as of 3 Feb 2099)')
         assert_equal(dataset['product_themes'], ["Orientation and Reference"])
         assert_equal(dataset['private'], True)
-
 
     @helpers.change_config('ckan.auth.create_unowned_dataset', False)
     def test_cannot_display_form_without_access(self):

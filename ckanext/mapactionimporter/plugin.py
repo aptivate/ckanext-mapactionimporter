@@ -51,7 +51,12 @@ def create_product_themes():
 def product_themes(query=None):
     try:
         tag_list = toolkit.get_action('tag_list')
-        product_themes = tag_list(data_dict={'vocabulary_id': 'product_themes', 'all_fields': True, 'query': query})
+        product_themes = tag_list(
+            data_dict={
+                'vocabulary_id': 'product_themes',
+                'all_fields': True,
+                'query': query
+            })
         return product_themes
     except toolkit.ObjectNotFound:
         return []

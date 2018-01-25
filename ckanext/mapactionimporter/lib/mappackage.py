@@ -122,6 +122,7 @@ def populate_dataset_dict_from_xml(et):
     dataset_dict = {}
     dataset_dict['title'] = join_lines(get_text_node(et, 'title'))
 
+    product_type = get_text_node(et, 'productType')
     operation_id = get_mandatory_text_node(et, 'operationID')
     map_number = get_mandatory_text_node(et, 'mapNumber')
     version_text = get_mandatory_text_node(et, 'versionNumber')
@@ -131,6 +132,11 @@ def populate_dataset_dict_from_xml(et):
     except ValueError:
         raise MapPackageException(_("Version number '{version_number}' must be an integer".format(
             version_number=version_text)))
+
+    # If set, set the dataset type to the the MapAction productType
+    # This will select the schema applied to the dataset
+    if product_type is not None:
+        dataset_dict['type'] = product_type
 
     dataset_dict['name'] = slugify('%s %s v%s' % (operation_id,
                                                   map_number,

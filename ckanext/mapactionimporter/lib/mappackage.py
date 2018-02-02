@@ -55,10 +55,28 @@ class MapPackageException(Exception):
 def map_metadata_to_ckan_extras(et):
     map_metadata = {}
     for e in et.findall('./mapdata/*'):
-        if e.tag in EXCLUDE_TAGS:
+        tag_name = e.tag
+
+        if tag_name in EXCLUDE_TAGS:
             continue
-        map_metadata[e.tag] = e.text
+
+        tag_value = e.text
+
+        if tag_name == 'countries-iso3':
+            tag_name = 'country-iso3'
+            tag_value = get_countries_iso3(e)
+
+        map_metadata[tag_name] = tag_value
     return map_metadata
+
+
+def get_countries_iso3(countries_iso3_element):
+    countries = []
+
+    for country in countries_iso3_element.findall('country-iso3'):
+        countries.append(country.text)
+
+    return countries
 
 
 def join_lines(text):

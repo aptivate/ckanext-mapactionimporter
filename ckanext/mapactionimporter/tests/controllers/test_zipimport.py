@@ -13,10 +13,10 @@ class TestDataPackageController(FunctionalTestBaseClass):
     def setup_member(self):
         user = factories.User()
         organization = factories.Organization(user=user)
-        group_189 = factories.Group(name='00189', user=user)
+        event = factories.Group(name='product-type-testing', user=user)
         helpers.call_action(
             'group_member_create',
-            id=group_189['id'],
+            id=event['id'],
             username=user['name'],
             role='editor')
 
@@ -45,7 +45,7 @@ class TestDataPackageController(FunctionalTestBaseClass):
         # Should redirect to dataset's page
         assert_equal(response.status_int, 302)
 
-        slug = '189-ma099-v1'
+        slug = 'product-type-testing-ma099-v1'
         assert_regexp_matches(
             response.headers['Location'],
             '/dataset/edit/%s' % slug)
@@ -67,9 +67,10 @@ class TestDataPackageController(FunctionalTestBaseClass):
         }
         upload_files = [('upload', get_test_schema_zip().name)]
         response = self.get_import_zip_response(env, params, upload_files)
+
         assert_equal(response.status_int, 302)
 
-        slug = '189-ma099-v1'
+        slug = 'product-type-testing-ma099-v1'
         assert_regexp_matches(
             response.headers['Location'],
             '/dataset/edit/%s' % slug)

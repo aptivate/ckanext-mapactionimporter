@@ -101,7 +101,7 @@ def transform_for_schema(context, dataset_info):
             else:
                 new_extras.append({"key": key, "value": value})
 
-    data_dict['extras'] = new_extras
+        data_dict['extras'] = new_extras
 
     data, errors = lib_plugins.plugin_validate(
             package_plugin, context, data_dict, schema, 'package_create')

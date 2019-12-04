@@ -1,3 +1,4 @@
+from ckan.common import config
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins.toolkit as toolkit
@@ -7,6 +8,7 @@ from ckanext.mapactionimporter.tests.helpers import (
     FunctionalTestBaseClass,
     assert_equal,
     assert_false,
+    assert_is_not_none,
     assert_raises,
     assert_true,
     get_correction_zip,
@@ -22,6 +24,13 @@ from ckanext.mapactionimporter.tests.helpers import (
 
 class TestCreateDatasetFromZip(FunctionalTestBaseClass):
     def setup(self):
+        storage_path = config.get('ckan.storage_path')
+        if not storage_path:
+            assert_is_not_none(
+                storage_path,
+                msg="You must define ckan.storage.path in ckan/test-core.ini"
+            )
+
         super(TestCreateDatasetFromZip, self).setup()
         self.user = factories.User()
 

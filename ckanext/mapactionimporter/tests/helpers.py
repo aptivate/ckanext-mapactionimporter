@@ -11,7 +11,7 @@ assert_false = nose.tools.assert_false
 assert_raises = nose.tools.assert_raises
 assert_regexp_matches = nose.tools.assert_regexp_matches
 assert_true = nose.tools.assert_true
-
+assert_is_not_none = nose.tools.assert_is_not_none
 
 def get_test_xml():
     return get_test_file('MA001_Aptivate_Example.xml')

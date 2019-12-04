@@ -13,7 +13,7 @@ class TestDataPackageController(FunctionalTestBaseClass):
     def test_import_zipfile(self):
         user = factories.User()
         organization = factories.Organization(user=user)
-        group_189 = factories.Group(name='00189', user=user)
+        group_189 = factories.Group(name='189', user=user, type='event')
         helpers.call_action(
             'group_member_create',
             id=group_189['id'],
@@ -51,7 +51,6 @@ class TestDataPackageController(FunctionalTestBaseClass):
                      'Central African Republic: Example Map- Reference (as of 3 Feb 2099)')
         assert_equal(dataset['product_themes'], ["Orientation and Reference"])
         assert_equal(dataset['private'], True)
-
 
     @helpers.change_config('ckan.auth.create_unowned_dataset', False)
     def test_cannot_display_form_without_access(self):

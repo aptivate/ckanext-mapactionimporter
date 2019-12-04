@@ -13,6 +13,7 @@ assert_regexp_matches = nose.tools.assert_regexp_matches
 assert_true = nose.tools.assert_true
 assert_is_not_none = nose.tools.assert_is_not_none
 
+
 def get_test_xml():
     return get_test_file('MA001_Aptivate_Example.xml')
 
@@ -49,9 +50,13 @@ def get_missing_fields_zip():
     return get_test_file('MA001_Missing_Fields.zip')
 
 
+def get_country_group_zip():
+    return get_test_file('MA001_Country_Group.zip')
+
+
 def get_test_file(filename):
-    return file(os.path.join(os.path.split(__file__)[0],
-        './test-data/', filename))
+    return open(os.path.join(os.path.split(__file__)[0],
+                             './test-data/', filename))
 
 
 class FunctionalTestBaseClass(helpers.FunctionalTestBase):

@@ -5,9 +5,9 @@ import shutil
 import tempfile
 import zipfile
 
-from ckan.common import _
+from ckan.plugins.toolkit import _
 
-from defusedxml.ElementTree import parse, ParseError
+from xml.etree.ElementTree import ParseError, parse
 from slugify import slugify
 
 log = logging.getLogger(__name__)
@@ -71,6 +71,7 @@ def join_lines(text):
 
 def to_dataset(map_package):
     # Extract the map package
+    # tempdir = tempfile.mkdtemp('-mapactionzip').encode('utf-8')
     tempdir = tempfile.mkdtemp('-mapactionzip')
 
     metadata_paths = []
@@ -78,12 +79,15 @@ def to_dataset(map_package):
     try:
         with zipfile.ZipFile(map_package, 'r') as z:
             for i in z.infolist():
-                filename = i.filename.encode('cp437')
+                # filename = i.filename.encode('utf-8')
+                filename = i.filename
                 full_path = os.path.join(tempdir, filename)
 
                 with open(full_path, 'wb') as outputfile:
                     shutil.copyfileobj(z.open(i.filename), outputfile)
 
+                # filename_str = filename.decode('utf-8')
+                # if filename_str.endswith('.xml'):
                 if filename.endswith('.xml'):
                     metadata_paths.append(full_path)
                 else:

@@ -1,6 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import ckanext.mapactionimporter.logic.action.create
+from ckanext.mapactionimporter.views import zipimport
 
 from collections import OrderedDict
 from .lib.mappackage import PRODUCT_THEMES
@@ -23,7 +24,7 @@ def register_translator():
         registry.register(translator, translator_obj)
 
 def create_product_themes():
-    register_translator()
+    # register_translator()
 
     user = toolkit.get_action('get_site_user')({'ignore_auth': True}, {})
     context = {'user': user['name']}
@@ -69,12 +70,15 @@ class MapactionimporterPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
     plugins.implements(plugins.IRoutes, inherit=True)
     plugins.implements(plugins.IFacets, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IClick)
+
 
     # IFacets
     def dataset_facets(self, facets_dict, package_type):
         #insert the Theme facet after Groups if it's there.
-        facets = facets_dict.items()
-        keys = facets_dict.keys()
+        facets = list(facets_dict.items())
+        keys = list(facets_dict.keys())
         facets_dict.clear()
 
         position = 0 #default to the start.
@@ -106,6 +110,16 @@ class MapactionimporterPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
         toolkit.add_resource('fanstatic', 'mapactionimporter')
+
+    # IClick
+    def get_commands(self):
+        # importing cli here to prevent circular import error
+        import ckanext.mapactionimporter.cli as cli
+        return cli.get_commands()
+
+    # IBlueprint
+    def get_blueprint(self):
+        return [zipimport]
 
     def before_map(self, map_):
         map_.connect(

@@ -1,0 +1,1 @@
+from ckanext.mapactionimporter.views.zipimport import zipimport

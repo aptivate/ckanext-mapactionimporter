@@ -1,8 +1,9 @@
 import os
 import cgi
 import uuid
+import tempfile
 
-from ckan.common import _
+from ckan.plugins.toolkit import _
 import ckan.logic as logic
 import ckan.plugins.toolkit as toolkit
 
@@ -11,12 +12,14 @@ from ckanext.mapactionimporter.lib import mappackage
 
 def create_dataset_from_zip(context, data_dict):
     upload = data_dict.get('upload')
-    if not _upload_attribute_is_valid(upload):
+    data_dict = toolkit.request.form
+    
+    if not upload:
         msg = {'upload': [_('You must select a file to be imported')]}
         raise toolkit.ValidationError(msg)
 
     try:
-        dataset_info = mappackage.to_dataset(upload.file)
+        dataset_info = mappackage.to_dataset(upload)
     except (mappackage.MapPackageException) as e:
         msg = {'upload': [e.args[0]]}
         raise toolkit.ValidationError(msg)
@@ -73,7 +76,6 @@ def _create_dataset(context, data_dict, dataset_info):
     private = data_dict.get('private', True)
 
     owner_org = data_dict.get('owner_org')
-
     update_dict = dataset_info['dataset_dict']
 
     if owner_org:
@@ -164,21 +166,17 @@ def _get_context(context):
     }
 
 
-def _upload_attribute_is_valid(upload):
-    return hasattr(upload, 'file') and hasattr(upload.file, 'read')
-
-
 def _create_and_upload_local_resource(context, resource):
     path = resource['path']
     del resource['path']
-    with open(path, 'r') as the_file:
+    with open(path, 'rb') as the_file:
         _create_and_upload_resource(context, resource, the_file)
 
 
 def _create_and_upload_resource(context, resource, the_file):
     resource['url'] = 'url'
     resource['url_type'] = 'upload'
-    resource['upload'] = _UploadLocalFileStorage(the_file)
+    resource['upload'] = cgi.FieldStorage(the_file)
     resource['name'] = os.path.basename(the_file.name)
     toolkit.get_action('resource_create')(context, resource)
 
@@ -187,4 +185,4 @@ class _UploadLocalFileStorage(cgi.FieldStorage):
     def __init__(self, fp, *args, **kwargs):
         self.name = fp.name
         self.filename = fp.name
-        self.file = fp
+        self.file = self.list = fp

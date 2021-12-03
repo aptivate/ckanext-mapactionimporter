@@ -74,11 +74,11 @@ class TestCreateDatasetForEvent(TestDatasetForEvent):
         self._check_uploaded_resource(sorted_resources[0],
                                       'JPEG',
                                       'MA001_Aptivate_Example-300dpi.jpeg',
-                                      'ma001aptivateexample-300dpi.jpeg')
+                                      'ma001_aptivate_example-300dpi.jpeg')
         self._check_uploaded_resource(sorted_resources[1],
                                       'PDF',
                                       'MA001_Aptivate_Example-300dpi.pdf',
-                                      'ma001aptivateexample-300dpi.pdf')
+                                      'ma001_aptivate_example-300dpi.pdf')
 
     def test_dataset_private_when_organization_specified(self):
         organization = factories.Organization(user=self.user)

@@ -4,6 +4,7 @@ import ckan.plugins.toolkit as toolkit
 from ckanext.mapactionimporter.tests.helpers import (
     FunctionalTestBaseClass,
     get_test_schema_zip,
+    get_test_zip,
     assert_equal,
     assert_true,
     assert_regexp_matches)
@@ -30,6 +31,35 @@ class TestDataPackageController(FunctionalTestBaseClass):
             params,
             extra_environ=env,
             upload_files=upload_files
+        )
+
+        return response
+
+    def test_import_zipfile(self):
+        user = factories.User()
+        organization = factories.Organization(user=user)
+        group_189 = factories.Group(name='189', user=user, type='event')
+        helpers.call_action(
+            'group_member_create',
+            id=group_189['id'],
+            username=user['name'],
+            role='editor')
+
+        env = {'REMOTE_USER': user['name'].encode('ascii')}
+        url = toolkit.url_for('import_mapactionzip')
+
+        params = {
+            'owner_org': organization['id'],
+        }
+
+        response = self._get_test_app().post(
+            url,
+            params,
+            extra_environ=env,
+            upload_files=[(
+                'upload',
+                get_test_zip().name,
+            )],
         )
 
         return response

@@ -2,6 +2,7 @@ import mock
 from defusedxml.ElementTree import parse
 import xml.etree.ElementTree as ET
 
+from ckan.common import config
 import ckan.tests.helpers as helpers
 import ckan.tests.factories as factories
 import ckan.plugins.toolkit as toolkit
@@ -11,9 +12,11 @@ from ckanext.mapactionimporter.tests.helpers import (
     FunctionalTestBaseClass,
     assert_equal,
     assert_false,
+    assert_is_not_none,
     assert_raises,
     assert_true,
     get_correction_zip,
+    get_country_group_zip,
     get_missing_fields_zip,
     get_not_zip,
     get_special_characters_zip,
@@ -28,6 +31,13 @@ from ckanext.mapactionimporter.tests.helpers import (
 
 class TestCreateDatasetFromZip(FunctionalTestBaseClass):
     def setup(self):
+        storage_path = config.get('ckan.storage_path')
+        if not storage_path:
+            assert_is_not_none(
+                storage_path,
+                msg="You must define ckan.storage.path in ckan/test-core.ini"
+            )
+
         super(TestCreateDatasetFromZip, self).setup()
         self.user = factories.User()
 
@@ -35,7 +45,7 @@ class TestCreateDatasetFromZip(FunctionalTestBaseClass):
 class TestDatasetForEvent(TestCreateDatasetFromZip):
     def setup(self):
         super(TestDatasetForEvent, self).setup()
-        self.group_189 = factories.Group(name='00189', user=self.user)
+        self.group_189 = factories.Group(name='189', user=self.user, type='event')
 
         helpers.call_action(
             'group_member_create',
@@ -227,7 +237,7 @@ class TestCreateDatasetForEvent(TestDatasetForEvent):
         events = dataset['groups']
 
         assert_equal(len(events), 1)
-        assert_equal(events[0]['name'], '00189')
+        assert_equal(events[0]['name'], '189')
 
     def test_new_version_associated_with_existing(self):
         organization = factories.Organization(user=self.user)
@@ -308,6 +318,17 @@ class TestCreateDatasetForEvent(TestDatasetForEvent):
                 'Upload':
                 "Status is 'Update' but dataset '189-ma001-v2' already exists"
             })
+
+    def test_it_raises_if_country_does_not_exist(self):
+        with assert_raises(toolkit.ValidationError) as cm:
+            helpers.call_action(
+                'create_dataset_from_mapaction_zip',
+                upload=_UploadFile(get_country_group_zip()))
+
+        assert_equal(cm.exception.error_summary, {
+            'Upload':
+            "Event or country code 'product-type-testing' does not exist",
+        })
 
 
 class TestCorrectExistingDataset(TestDatasetForEvent):
@@ -440,7 +461,46 @@ class TestCreateDatasetForNoEvent(TestCreateDatasetFromZip):
 
         assert_equal(cm.exception.error_summary, {
             'Upload':
-            "Event with operationID '00189' does not exist",
+            "Event or country code '189' does not exist",
+        })
+
+
+class TestCreateDatasetForCountry(TestCreateDatasetFromZip):
+    def setup(self):
+        super(TestCreateDatasetForCountry, self).setup()
+        self.bol = factories.Group(name='product-type-testing', user=self.user, type='location')
+
+        helpers.call_action(
+            'group_member_create',
+            id=self.bol['id'],
+            username=self.user['name'],
+            role='editor')
+
+    def test_it_attaches_to_country_with_operation_id_from_metadata(self):
+        dataset = helpers.call_action(
+            'create_dataset_from_mapaction_zip',
+            context={'user': self.user['name']},
+            upload=_UploadFile(get_country_group_zip()),
+        )
+
+        dataset = helpers.call_action(
+            'ckan_package_show',
+            context={'user': self.user['name']},
+            id=dataset['id'])
+        countries = dataset['groups']
+
+        assert_equal(len(countries), 1)
+        assert_equal(countries[0]['name'], 'product-type-testing')
+
+    def test_it_raises_if_country_does_not_exist(self):
+        with assert_raises(toolkit.ValidationError) as cm:
+            helpers.call_action(
+                'create_dataset_from_mapaction_zip',
+                upload=_UploadFile(get_test_zip()))
+
+        assert_equal(cm.exception.error_summary, {
+            'Upload':
+            "Event or country code '189' does not exist",
         })
 
 class TestCreateWithPackageTypeSchema(TestDatasetForEvent):

@@ -152,6 +152,9 @@ class MapactionimporterPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetFor
                 toolkit.get_converter('convert_from_tags')('product_themes'),
                 toolkit.get_validator('ignore_missing')]
             })
+        schema['groups'].update({
+            'type': [toolkit.get_validator('ignore_missing')],
+        })
         return schema
 
     def create_package_schema(self):

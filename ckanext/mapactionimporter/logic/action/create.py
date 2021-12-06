@@ -190,15 +190,15 @@ def _create_dataset(context, data_dict, dataset_info):
 
     update_dict['private'] = private
 
-    operation_id = dataset_info['operation_id'].zfill(5)
+    operation_id = dataset_info['operation_id']
 
     try:
         toolkit.get_action('group_show')(
             _get_context(context),
-            data_dict={'type': 'event', 'id': operation_id})
+            data_dict={'id': operation_id})
     except (logic.NotFound) as e:
         msg = {'upload': [
-            _("Event with operationID '{0}' does not exist").format(
+            _("Event or country code '{}' does not exist").format(
                 operation_id)]}
         raise toolkit.ValidationError(msg)
 

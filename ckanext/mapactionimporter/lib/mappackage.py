@@ -143,7 +143,6 @@ def populate_dataset_dict_from_xml(et):
     # Extract key metadata
     dataset_dict = {}
     dataset_dict['title'] = join_lines(get_text_node(et, 'title'))
-
     product_type = get_text_node(et, 'productType')
     operation_id = get_mandatory_text_node(et, 'operationID')
     map_number = get_mandatory_text_node(et, 'mapNumber')

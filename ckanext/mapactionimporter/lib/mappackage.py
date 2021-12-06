@@ -45,6 +45,7 @@ EXCLUDE_TAGS = (
     'themes',
     'title',
     'versionNumber',
+    'summary'
 )
 
 

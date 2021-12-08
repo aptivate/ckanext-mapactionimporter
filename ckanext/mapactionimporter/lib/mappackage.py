@@ -45,6 +45,7 @@ EXCLUDE_TAGS = (
     'themes',
     'title',
     'versionNumber',
+    'summary'
 )
 
 
@@ -55,10 +56,28 @@ class MapPackageException(Exception):
 def map_metadata_to_ckan_extras(et):
     map_metadata = {}
     for e in et.findall('./mapdata/*'):
-        if e.tag in EXCLUDE_TAGS:
+        tag_name = e.tag
+
+        if tag_name in EXCLUDE_TAGS:
             continue
-        map_metadata[e.tag] = e.text
+
+        tag_value = e.text
+
+        if tag_name == 'countries-iso3':
+            tag_name = 'country-iso3'
+            tag_value = get_countries_iso3(e)
+
+        map_metadata[tag_name] = tag_value
     return map_metadata
+
+
+def get_countries_iso3(countries_iso3_element):
+    countries = []
+
+    for country in countries_iso3_element.findall('country-iso3'):
+        countries.append(country.text)
+
+    return countries
 
 
 def join_lines(text):
@@ -69,7 +88,7 @@ def join_lines(text):
     return ' '.join(text.splitlines())
 
 
-def to_dataset(map_package):
+def extract_zip(map_package):
     # Extract the map package
     tempdir = tempfile.mkdtemp('-mapactionzip')
 
@@ -102,10 +121,14 @@ def to_dataset(map_package):
         raise MapPackageException(_("Error parsing XML: '{0}'".format(
             e.msg.args[0])))
 
+    return (et, file_paths)
+
+
+def to_dataset(context, map_package):
+    et, file_paths = extract_zip(map_package)
     dataset_dict = populate_dataset_dict_from_xml(et)
     # Not currently in the metadata
     dataset_dict['license_id'] = 'notspecified'
-
     dataset_info = {
         'status': get_mandatory_text_node(et, 'status'),
         'dataset_dict': dataset_dict,
@@ -121,7 +144,7 @@ def populate_dataset_dict_from_xml(et):
     # Extract key metadata
     dataset_dict = {}
     dataset_dict['title'] = join_lines(get_text_node(et, 'title'))
-
+    product_type = get_text_node(et, 'productType')
     operation_id = get_mandatory_text_node(et, 'operationID')
     map_number = get_mandatory_text_node(et, 'mapNumber')
     version_text = get_mandatory_text_node(et, 'versionNumber')
@@ -135,8 +158,8 @@ def populate_dataset_dict_from_xml(et):
     dataset_dict['name'] = slugify('%s %s v%s' % (operation_id,
                                                   map_number,
                                                   version_number))
-
     dataset_dict['version'] = version_number
+    dataset_dict['type'] = product_type
 
     for theme in et.findall('.//mapdata//theme'):
         if theme.text in PRODUCT_THEMES:
@@ -150,8 +173,8 @@ def populate_dataset_dict_from_xml(et):
     dataset_dict['notes'] = join_lines(summary)
 
     dataset_dict['extras'] = [
-        {'key': k, 'value': v} for (k, v) in
-        map_metadata_to_ckan_extras(et).items()
+        {'key': k, 'value': v} for (k, v)
+        in map_metadata_to_ckan_extras(et).items()
     ]
 
     return dataset_dict

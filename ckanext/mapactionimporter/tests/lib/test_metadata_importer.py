@@ -42,6 +42,12 @@ class TestMapMetadataToCkanExtras(TestXmlParse):
     </themes>
     <mapNumber>{mapnumber}</mapNumber>
     <versionNumber>{versionnumber}</versionNumber>
+    <principal-country-iso3>NPL</principal-country-iso3>
+    <countries-iso3>
+      <country-iso3>NPL</country-iso3>
+      <country-iso3>CHN</country-iso3>
+      <country-iso3>IND</country-iso3>
+    </countries-iso3>
   </mapdata>
 </mapdoc>
     """
@@ -65,6 +71,17 @@ class TestMapMetadataToCkanExtras(TestXmlParse):
 
     def test_themes_excluded(self):
         self.assertNotIn('themes', self.extras_dict)
+
+    def test_countries_included(self):
+        self.assertIn('country-iso3', self.extras_dict)
+
+        countries = self.extras_dict['country-iso3']
+
+        self.assertIn('NPL', countries)
+        self.assertIn('CHN', countries)
+        self.assertIn('IND', countries)
+
+        self.assertEquals(len(countries), 3)
 
 
 class TestPopulateDatasetDictFromXml(TestXmlParse):

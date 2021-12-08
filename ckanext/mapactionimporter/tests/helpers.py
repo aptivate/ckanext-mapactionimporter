@@ -21,6 +21,9 @@ def get_test_xml():
 def get_test_zip():
     return get_test_file('MA001_Aptivate_Example.zip')
 
+def get_test_schema_zip():
+    return get_test_file('MA099_Aptivate_Example_MapSheet.zip')
+
 
 def get_update_zip():
     return get_test_file('MA001_Aptivate_Example_Update.zip')

@@ -2,31 +2,12 @@
    these badges work. The necessary Travis and Coverage config files have been
    generated for you.
 
-.. image:: https://travis-ci.org/aptivate/ckanext-mapactionimporter.svg?branch=master
-    :target: https://travis-ci.org/aptivate/ckanext-mapactionimporter
+.. image:: https://github.com/aptivate/ckanext-mapactionimporter/workflows/CI/badge.svg
+    :target: https://github.com/aptivate/ckanext-mapactionimporter/actions
 
-.. image:: https://coveralls.io/repos/aptivate/ckanext-mapactionimporter/badge.svg
-  :target: https://coveralls.io/r/aptivate/ckanext-mapactionimporter
+.. image:: https://coveralls.io/repos/github/aptivate/ckanext-mapactionimporter/badge.svg
+    :target: https://coveralls.io/github/aptivate/ckanext-mapactionimporter
 
-.. image:: https://pypip.in/download/ckanext-mapactionimporter/badge.svg
-    :target: https://pypi.python.org/pypi//ckanext-mapactionimporter/
-    :alt: Downloads
-
-.. image:: https://pypip.in/version/ckanext-mapactionimporter/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mapactionimporter/
-    :alt: Latest Version
-
-.. image:: https://pypip.in/py_versions/ckanext-mapactionimporter/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mapactionimporter/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/status/ckanext-mapactionimporter/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mapactionimporter/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/ckanext-mapactionimporter/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-mapactionimporter/
-    :alt: License
 
 =============
 ckanext-mapactionimporter
